@@ -9,12 +9,30 @@ function App() {
   ]);
 
   const [addedProducts, setAddedProducts] = useState([]);
+
   function addToCart(product) {
     const prodotto = addedProducts.find((prod) => prod.name === product.name);
     if (!prodotto) {
       setAddedProducts([...addedProducts, { ...product, quantity: 1 }]);
+    } else {
+      const incrementa = addedProducts.map((prod) => {
+        if (prod.name === product.name) {
+          return { ...prod, quantity: prod.quantity + 1 };
+        }
+        return prod;
+      });
+      setAddedProducts(incrementa);
     }
   }
+
+  function remove(product) {
+    const products = addedProducts.filter((prod) => prod.name !== product.name);
+    setAddedProducts(products);
+  }
+
+  const totale = addedProducts.reduce((acc, prod) => {
+    return acc + prod.price * prod.quantity;
+  }, 0);
 
   return (
     <>
@@ -40,10 +58,14 @@ function App() {
             <li key={index}>
               Nome: {prod.name} - Prezzo: {prod.price} - Quantità:{" "}
               {prod.quantity}
+              <button onClick={() => remove(prod)}>❌</button>
             </li>
           );
         })}
       </ul>
+      {addedProducts.length > 0 && (
+        <p className="text-blue-700">Totale da pagare: {totale.toFixed(2)}</p>
+      )}
     </>
   );
 }
