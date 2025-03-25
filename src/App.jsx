@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useReducer } from "react";
 
 function App() {
   const [products, setProducts] = useState([
@@ -9,8 +9,12 @@ function App() {
   ]);
 
   const [addedProducts, setAddedProducts] = useState([]);
-
-  function addToCart(product) {
+  const [quantita, setQuantita] = useState("");
+  const initialState = {
+    addedProducts: [],
+  };
+  const [state, dispatch] = useReducer(cartReducer, initialState);
+  /*   function addToCart(product) {
     const prodotto = addedProducts.find((prod) => prod.name === product.name);
     if (!prodotto) {
       setAddedProducts([...addedProducts, { ...product, quantity: 1 }]);
@@ -23,7 +27,7 @@ function App() {
       });
       setAddedProducts(incrementa);
     }
-  }
+  } */
 
   function remove(product) {
     const products = addedProducts.filter((prod) => prod.name !== product.name);
@@ -33,8 +37,6 @@ function App() {
   const totale = addedProducts.reduce((acc, prod) => {
     return acc + prod.price * prod.quantity;
   }, 0);
-
-  const [quantita, setQuantita] = useState("");
 
   function addToCartInp(product, quantita) {
     const found = addedProducts.find((prod) => prod.name === product.name);
@@ -52,6 +54,28 @@ function App() {
     setQuantita("");
   }
 
+  function cartReducer(stato, action) {
+    switch (action.type) {
+      case "AGGIUNGI": {
+        const product = action.playload;
+        const prodotto = addedProducts.find(
+          (prod) => prod.name === product.name
+        );
+        if (!prodotto) {
+          setAddedProducts([...addedProducts, { ...product, quantity: 1 }]);
+        } else {
+          const incrementa = addedProducts.map((prod) => {
+            if (prod.name === product.name) {
+              return { ...prod, quantity: prod.quantity + 1 };
+            }
+            return prod;
+          });
+          setAddedProducts(incrementa);
+        }
+      }
+    }
+  }
+
   return (
     <>
       <ul>
@@ -60,7 +84,9 @@ function App() {
             <li key={index} className="p-1">
               Nome: {product.name} - Prezzo: {product.price}
               <button
-                onClick={() => addToCart(product)}
+                onClick={() =>
+                  dispatch({ type: "AGGIUNGI", playload: product })
+                }
                 className="bg-blue-500 rounded px-1 ml-2"
               >
                 Aggiungi al carrello
