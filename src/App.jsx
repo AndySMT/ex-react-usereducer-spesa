@@ -34,6 +34,24 @@ function App() {
     return acc + prod.price * prod.quantity;
   }, 0);
 
+  const [quantita, setQuantita] = useState("");
+
+  function addToCartInp(product, quantita) {
+    const found = addedProducts.find((prod) => prod.name === product.name);
+    if (!found) {
+      setAddedProducts([...addedProducts, { ...product, quantity: quantita }]);
+    } else {
+      const updatedCart = addedProducts.map((prod) => {
+        if (prod.name === product.name) {
+          return { ...prod, quantity: prod.quantity + quantita };
+        }
+        return prod;
+      });
+      setAddedProducts(updatedCart);
+    }
+    setQuantita("");
+  }
+
   return (
     <>
       <ul>
@@ -46,6 +64,18 @@ function App() {
                 className="bg-blue-500 rounded px-1 ml-2"
               >
                 Aggiungi al carrello
+              </button>
+              <input
+                type="number"
+                placeholder="inserisci Quantita"
+                value={quantita}
+                onChange={(e) => setQuantita(e.target.value)}
+              />
+              <button
+                onClick={() => addToCartInp(product, quantita)}
+                className="bg-amber-500 rounded m-1"
+              >
+                Aggiungi
               </button>
             </li>
           );
